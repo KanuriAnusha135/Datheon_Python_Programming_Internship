@@ -1,114 +1,110 @@
 
-class Inventory:
+from models import Book, Magazine, DigitalMedia
+
+
+class InventoryManager:
 
     def __init__(self):
-        self.products = {}
+        self.items = []
 
-    # Add a new product
-    def add_product(self):
-        name = input("Enter product name: ").strip()
+    def add_item(self, item):
+        self.items.append(item)
+        print("Item added successfully!")
 
-        if not name:
-            print("Product name cannot be empty!")
-            return
-
-        if name in self.products:
-            print("Product already exists!")
-            return
-
-        try:
-            quantity = int(input("Enter quantity: "))
-            price = float(input("Enter price: "))
-
-            if quantity < 0 or price < 0:
-                print("Quantity and price cannot be negative!")
+    def remove_item(self, item_id):
+        for item in self.items:
+            if item.item_id == item_id:
+                self.items.remove(item)
+                print("Item removed successfully!")
                 return
 
-            self.products[name] = {
-                "quantity": quantity,
-                "price": price
-            }
+        print("Item not found!")
 
-            print("Product added successfully!")
+    def display_inventory(self):
+        print("\n===== INVENTORY REPORT =====")
 
-        except ValueError:
-            print("Please enter valid numbers!")
-
-    # View all products
-    def view_products(self):
-        if not self.products:
+        if not self.items:
             print("Inventory is empty!")
             return
 
-        print("\n===== PRODUCT LIST =====")
-
-        for name, details in self.products.items():
-            print("Product:", name)
-            print("Quantity:", details["quantity"])
-            print("Price: Rs.", details["price"])
+        for item in self.items:
+            print(item.display_metadata())
+            print("Price:", item.price)
+            print("Fee:", item.calculate_fee())
             print("----------------------")
 
-    # Update product stock
-    def update_stock(self):
-        name = input("Enter product name: ").strip()
+        print("Total Items:", len(self.items))
+        print("Total Inventory Value:", sum(item.price for item in self.items))
 
-        if name not in self.products:
-            print("Product not found!")
-            return
+    def __len__(self):
+        return len(self.items)
+
+
+def main():
+
+    inventory = InventoryManager()
+
+    while True:
+
+        print("\n===== SMART INVENTORY SYSTEM =====")
+        print("1. Add Book")
+        print("2. Add Magazine")
+        print("3. Add Digital Media")
+        print("4. View Inventory")
+        print("5. Remove Item")
+        print("6. Exit")
+
+        choice = input("Enter your choice: ")
 
         try:
-            quantity = int(input("Enter new quantity: "))
 
-            if quantity < 0:
-                print("Quantity cannot be negative!")
-                return
+            if choice == "1":
+                item_id = input("Enter Book ID: ")
+                title = input("Enter Book Title: ")
+                price = float(input("Enter Book Price: "))
+                author = input("Enter Author Name: ")
 
-            self.products[name]["quantity"] = quantity
-            print("Stock updated successfully!")
+                inventory.add_item(
+                    Book(item_id, title, price, author)
+                )
 
-        except ValueError:
-            print("Please enter a valid quantity!")
+            elif choice == "2":
+                item_id = input("Enter Magazine ID: ")
+                title = input("Enter Magazine Title: ")
+                price = float(input("Enter Magazine Price: "))
+                issue = input("Enter Issue Number: ")
 
-    # Delete a product
-    def delete_product(self):
-        name = input("Enter product name: ").strip()
+                inventory.add_item(
+                    Magazine(item_id, title, price, issue)
+                )
 
-        if name in self.products:
-            del self.products[name]
-            print("Product deleted successfully!")
-        else:
-            print("Product not found!")
+            elif choice == "3":
+                item_id = input("Enter Media ID: ")
+                title = input("Enter Media Title: ")
+                price = float(input("Enter Media Price: "))
+                file_format = input("Enter File Format: ")
+
+                inventory.add_item(
+                    DigitalMedia(item_id, title, price, file_format)
+                )
+
+            elif choice == "4":
+                inventory.display_inventory()
+
+            elif choice == "5":
+                item_id = input("Enter Item ID to remove: ")
+                inventory.remove_item(item_id)
+
+            elif choice == "6":
+                print("Thank you for using Smart Inventory System!")
+                break
+
+            else:
+                print("Invalid choice! Try again.")
+
+        except ValueError as error:
+            print("Invalid input:", error)
 
 
-# Main program
-inventory = Inventory()
-
-while True:
-
-    print("\n===== INVENTORY MANAGEMENT SYSTEM =====")
-    print("1. Add Product")
-    print("2. View Products")
-    print("3. Update Stock")
-    print("4. Delete Product")
-    print("5. Exit")
-
-    choice = input("Enter your choice: ")
-
-    if choice == "1":
-        inventory.add_product()
-
-    elif choice == "2":
-        inventory.view_products()
-
-    elif choice == "3":
-        inventory.update_stock()
-
-    elif choice == "4":
-        inventory.delete_product()
-
-    elif choice == "5":
-        print("Thank you for using Inventory Management System!")
-        break
-
-    else:
-        print("Invalid choice! Please try again.")
+if __name__ == "__main__":
+    main()
